@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_cute.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon_cute.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.sanchor.xyz","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="放一下作业 编程实现的重要性首先我们都知道，要想得到拟合度很高的折线图，数据要足够的密集，这就要我们算很多组数据，手算几乎是不可能，除非你想随便应付一下作业。其次计算公式中的参数也很多，在6sV的输出文件中艰难的找数据，要记录要计算，工作量可想而知。拿观测天顶角来说（0～70），就算以 5为间隔，那也得反复 15 次，还要用计算器输入那么长的小数，我想你是拒绝的。 其实写程序的好处在于可以批量处理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="辐射传输代码模拟表观反射率的 C++ 解决方法">
+<meta property="og:url" content="https://www.sanchor.xyz/2019/04/05/6sV%E6%A8%A1%E6%8B%9FTOA%E7%9A%84-CPP-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/index.html">
+<meta property="og:site_name" content="小可的博客呀">
+<meta property="og:description" content="放一下作业 编程实现的重要性首先我们都知道，要想得到拟合度很高的折线图，数据要足够的密集，这就要我们算很多组数据，手算几乎是不可能，除非你想随便应付一下作业。其次计算公式中的参数也很多，在6sV的输出文件中艰难的找数据，要记录要计算，工作量可想而知。拿观测天顶角来说（0～70），就算以 5为间隔，那也得反复 15 次，还要用计算器输入那么长的小数，我想你是拒绝的。 其实写程序的好处在于可以批量处理">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190405190311227.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3hpYW9rZTBP,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://i.loli.net/2019/04/05/5ca76ba915f5c.png">
+<meta property="og:image" content="https://pic.downk.cc/item/5ea00d96c2a9a83be576ac8f.png">
+<meta property="og:image" content="https://pic.downk.cc/item/5ea01288c2a9a83be57b11c6.png">
+<meta property="article:published_time" content="2019-04-05T09:35:57.000Z">
+<meta property="article:modified_time" content="2020-12-03T12:52:59.850Z">
+<meta property="article:author" content="遥一可">
+<meta property="article:tag" content="cpp">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20190405190311227.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3hpYW9rZTBP,size_16,color_FFFFFF,t_70">
+
+<link rel="canonical" href="https://www.sanchor.xyz/2019/04/05/6sV%E6%A8%A1%E6%8B%9FTOA%E7%9A%84-CPP-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>辐射传输代码模拟表观反射率的 C++ 解决方法 | 小可的博客呀</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小可的博客呀</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">当我沉默的时候，我觉得很充实，当我开口说话，就感到了空虚</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">7</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">5</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">22</span></a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.sanchor.xyz/2019/04/05/6sV%E6%A8%A1%E6%8B%9FTOA%E7%9A%84-CPP-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/cut_cat.jpg">
+      <meta itemprop="name" content="遥一可">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小可的博客呀">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          辐射传输代码模拟表观反射率的 C++ 解决方法
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-04-05 17:35:57" itemprop="dateCreated datePublished" datetime="2019-04-05T17:35:57+08:00">2019-04-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-03 20:52:59" itemprop="dateModified" datetime="2020-12-03T20:52:59+08:00">2020-12-03</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>11 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h3 id="放一下作业"><a href="#放一下作业" class="headerlink" title="放一下作业"></a>放一下作业</h3><p><img src="https://img-blog.csdnimg.cn/20190405190311227.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3hpYW9rZTBP,size_16,color_FFFFFF,t_70" alt=""></p>
+<h3 id="编程实现的重要性"><a href="#编程实现的重要性" class="headerlink" title="编程实现的重要性"></a>编程实现的重要性</h3><p>首先我们都知道，要想得到拟合度很高的折线图，数据要足够的密集，这就要我们算很多组数据，手算几乎是不可能，<del>除非你想随便应付一下作业</del>。其次计算公式中的参数也很多，在6sV的输出文件中艰难的找数据，要记录要计算，工作量可想而知。拿观测天顶角来说（0～70），就算以 5为间隔，那也得反复 15 次，还要用计算器输入那么长的小数，我想你是拒绝的。</p>
+<p>其实写程序的好处在于可以批量处理，写程序的过程是艰辛的，但程序运行起来就很开心。</p>
+<a id="more"></a>
+
+<h3 id="代码实现思路"><a href="#代码实现思路" class="headerlink" title="代码实现思路"></a>代码实现思路</h3><p>这 3 道题其实做法是一样的，只是需要修改 input.txt 的地方不一样。具体需要修改的地方如下。这里拿 AOD 为例，0～3.0 变化，我这里设置的分度值是 0.1，结果可以生成 30 组 TOA（表观反射率）数据，这样得到的折线图就会比较平滑。</p>
+<p><img src="https://i.loli.net/2019/04/05/5ca76ba915f5c.png" alt=""></p>
+<p>只要上过课就不难想象出下边的流程图</p>
+<pre class="mermaid">graph TB
+A(开始) --> B[以写模式打开input.txt]
+B --> C[修改input.txt中代表AOD的值]
+C-->D[调用sixV2.1计算]
+D-->E[提取output.txt中需要的值]
+E-->F[用提取的数按照公式计算]
+
+F-->G[输出AOD值和计算结果]
+G-->H(结束)
+G--变化AOD值直到满足循环条件-->B</pre>
+
+<h3 id="全部代码如下-3-4完美解决方案"><a href="#全部代码如下-3-4完美解决方案" class="headerlink" title="全部代码如下(3/4完美解决方案)"></a>全部代码如下(3/4完美解决方案)</h3><blockquote>
+<p>详情见注释</p>
+</blockquote>
+<h5 id="进一步的修改方案"><a href="#进一步的修改方案" class="headerlink" title="进一步的修改方案"></a>进一步的修改方案</h5><p>将79-107行之间的程序改用ModifyData函数代替，可读性易用性更好</p>
+<h4 id="代码解析"><a href="#代码解析" class="headerlink" title="代码解析"></a>代码解析</h4><p>这剩下的1/4不完美就处在第一步修改input内容上。</p>
+<p>我想写一个ModifyData函数，用来修改input文件指定行的指定位置的数，这样就可以实现三个作业的快速调整，但发现并没有那么容易，这里牵涉到数字位数，数字定位，数字宽度（前置零）等问题，所以暂时搁置。用了<strong>条件编译</strong>来区分三个作业，（只区分了input文件的写入部分），未来将会用ModifyData函数代替。</p>
+<blockquote>
+<p> <strong>条件编译怎么用</strong></p>
+</blockquote>
+<blockquote>
+<p> 可以看第26行</p>
+</blockquote>
+<p><strong>重点讲一下6s输出文件的参数提取</strong></p>
+<p>这是输出文件的一部分，我的做法是写了一个函数<code>GetParameterValue（）</code>，用来从文件中取出某一行的小数。比如我想从下面这个文件中取出reflectance I 的第一个数，就可以写<code>data=GetParameterValue(_6soutputfile,134,1)</code>就把这个文件中的第134行的第一个数取出来了。</p>
+<p><img src="https://pic.downk.cc/item/5ea00d96c2a9a83be576ac8f.png" alt=""></p>
+<p>首先定位到第指定行，用了<code>MoveToLine()</code>函数，原理就是诸行读取，每读一行，将文件指针移动到下一行行首。</p>
+<p>其次提取该行的数字，用了<code>GetNum()</code>函数，原理是正则表达式<code>(-?\d+)(\.\d+)</code>，提取浮点数，并把提取到的浮点数存在一个向量中，然后再取出制定的那个数。</p>
+<blockquote>
+<p>不了解正则的同学可以了解以下，处理字符串事半功倍。现在主流编程语言都支持正则表达式，学习使用正则表达式，也是一个逻辑方式的新角度</p>
+</blockquote>
+<p>最后是套公式计算，最后输出到CSV文件，方便导入Excel或者直接用软件画图。</p>
+<p>拿AOD为例，输出的内容格式是 AOD值, 公式计算值, 6s计算值。</p>
+<p>这是用gnuplot直接读取CSV文件绘制的。代码如下。</p>
+<blockquote>
+<p>MATLAB,Python都可以实现类似的操作</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">set datafile separator &#39;,&#39;</span><br><span class="line">set title &quot;表观反射率随AOD变化情况&quot;</span><br><span class="line">set xlabel &quot;AOD变化范围&quot;</span><br><span class="line">set ylabel &quot;表观反射率&quot;</span><br><span class="line">plot &#39;AOD.csv&#39; using 1:2 with lines title &quot;公式计算值&quot;, &#39;&#39; using 1:3 with lines title &quot;6S计算值&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://pic.downk.cc/item/5ea01288c2a9a83be57b11c6.png" alt=""></p>
+<h4 id="重难点"><a href="#重难点" class="headerlink" title="重难点"></a>重难点</h4><ul>
+<li>文件读写</li>
+<li>文件字节移动</li>
+<li>函数参数的指针(引用)传递</li>
+<li>条件编译(其实是权宜之计)</li>
+<li>正则表达式</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**********************************************************************</span></span><br><span class="line"><span class="comment"> * 6s程序处理思路                                                       *</span></span><br><span class="line"><span class="comment"> * 以写模式打开input.txt                                                 *</span></span><br><span class="line"><span class="comment"> * 按照一定间隔修改变量                                                   *</span></span><br><span class="line"><span class="comment"> * 保存input.txt                                                       *</span></span><br><span class="line"><span class="comment"> * 调用sixV2.1计算                                                      *</span></span><br><span class="line"><span class="comment"> * 读取output.txt                                                       *</span></span><br><span class="line"><span class="comment"> **** 课堂上老师说重新计算后，如果输出文件名和上次的一样，两个计算结果会合并，      *</span></span><br><span class="line"><span class="comment"> **** 但测试结果为新的计算结果会替换上次的计算结果                             *</span></span><br><span class="line"><span class="comment"> * 提取6SV生成好的的表观反射率——即apparent reflectance作为结果对照            *</span></span><br><span class="line"><span class="comment"> * 提取相关数据计算表观反射率                                               *</span></span><br><span class="line"><span class="comment"> * 输出变量和表观反射率                                                    *</span></span><br><span class="line"><span class="comment"> ************************************************************************</span></span><br><span class="line"><span class="comment"> ****************** 看不懂为啥的地方就看上边那几个参考文章 *********************</span></span><br><span class="line"><span class="comment"> ****************** 没见过的函数百度或者看上边的参考文章  **********************</span></span><br><span class="line"><span class="comment"> ************************************************************************/</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;fstream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;regex&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//条件编译的开关，想运行哪一个，把谁的注释去掉</span></span><br><span class="line"><span class="comment">//#define AOD</span></span><br><span class="line"><span class="comment">//#define zenith</span></span><br><span class="line"><span class="comment">//#define surface</span></span><br><span class="line"><span class="comment">//移动infile文件的指针到line行开头</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MoveToLine</span><span class="params">(fstream &amp;infile, <span class="keyword">int</span> line)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; line - <span class="number">1</span>; ++i) &#123;</span><br><span class="line">                <span class="built_in">string</span> linedata;</span><br><span class="line">                getline(infile, linedata);</span><br><span class="line">                infile.seekg(<span class="number">0</span>, ios::cur);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//<span class="doctag">TODO:</span>函数待完善</span></span><br><span class="line"><span class="comment">//修改infile文件的第lineumber行的第seek个数为data</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ModifyData</span><span class="params">(fstream &amp;infile, <span class="keyword">int</span> lineNumber, <span class="keyword">int</span> seek, <span class="keyword">float</span> data)</span> </span>&#123;</span><br><span class="line">        MoveToLine(infile, lineNumber);</span><br><span class="line"></span><br><span class="line"><span class="comment">//        infile.seekg(seek, ios::cur);</span></span><br><span class="line"></span><br><span class="line">        infile &lt;&lt; data;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">GetNum</span><span class="params">(<span class="built_in">string</span> &amp;linedata, <span class="keyword">int</span> loc, <span class="keyword">float</span> &amp;number)</span> </span>&#123;</span><br><span class="line">        smatch match;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; result;</span><br><span class="line">        <span class="keyword">while</span> (regex_search(linedata, match, regex(<span class="string">R"((-?\d+)(\.\d+))"</span>))) &#123;</span><br><span class="line">                result.push_back(match.str());</span><br><span class="line">                linedata = match.suffix();</span><br><span class="line">        &#125;</span><br><span class="line">        number = stof(result[loc - <span class="number">1</span>]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">GetParameterValue</span><span class="params">(fstream &amp;infile, <span class="keyword">int</span> lineNumber, <span class="keyword">int</span> loc)</span> </span>&#123;</span><br><span class="line">        MoveToLine(infile, lineNumber);</span><br><span class="line">        <span class="built_in">string</span> linedata;</span><br><span class="line">        getline(infile, linedata);</span><br><span class="line">        <span class="keyword">float</span> ParameterValue;</span><br><span class="line">        GetNum(linedata, loc, ParameterValue);</span><br><span class="line">        infile.seekg(<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">return</span> ParameterValue;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//分别定义输入文件、输出文件、结果输出文件的地址，方便后期调用</span></span><br><span class="line">        <span class="keyword">const</span> <span class="keyword">char</span> *input_location = <span class="string">"../Assets/input.txt"</span>;<span class="comment">//输入文件位置路径</span></span><br><span class="line">        <span class="keyword">const</span> <span class="keyword">char</span> *_6s_out_location = <span class="string">"../Assets/outputfile.txt"</span>;<span class="comment">//输出文件位置路径</span></span><br><span class="line">        <span class="keyword">const</span> <span class="keyword">char</span> *result_location = <span class="string">"../Assets/AOD.csv"</span>;<span class="comment">//结果输出位置路径</span></span><br><span class="line">        <span class="keyword">const</span> <span class="keyword">char</span> *shell_location = <span class="string">"../Assets/do.sh"</span>;<span class="comment">//shell脚本位置路径</span></span><br><span class="line">        <span class="keyword">int</span> value;<span class="comment">//需要循环更改的那个AOD值</span></span><br><span class="line">        <span class="keyword">float</span> TOA_est;<span class="comment">//TOA的计算值</span></span><br><span class="line">        <span class="function">fstream <span class="title">infile</span><span class="params">(input_location)</span></span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> zenith</span></span><br><span class="line">        MoveToLine(infile, <span class="number">2</span>);</span><br><span class="line">        infile.seekg(<span class="number">5</span>,ios::cur);</span><br><span class="line">        <span class="keyword">for</span> (value = <span class="number">0</span>; value &lt;= <span class="number">70</span>; value++) &#123;</span><br><span class="line"></span><br><span class="line">                infile.width(<span class="number">2</span>);</span><br><span class="line"><span class="comment">//                infile.setf(ios::fixed);</span></span><br><span class="line">                infile &lt;&lt; value/<span class="number">10.0</span>;</span><br><span class="line">                infile.seekg(<span class="number">-3</span>, ios::cur);</span><br><span class="line">                <span class="built_in">cout</span> &lt;&lt; <span class="string">"开始执行6s算法,Value="</span> &lt;&lt; value &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> AOD</span></span><br><span class="line">        MoveToLine(infile, <span class="number">7</span>);</span><br><span class="line">        <span class="keyword">for</span> (value = <span class="number">0</span>; value &lt;= <span class="number">30</span>; value++) &#123;</span><br><span class="line">                infile.precision(<span class="number">1</span>);</span><br><span class="line">                infile.setf(ios::fixed);</span><br><span class="line">                infile &lt;&lt; value / <span class="number">10.0</span>;</span><br><span class="line">                infile.seekg(<span class="number">-3</span>, ios::cur);</span><br><span class="line">                <span class="built_in">cout</span> &lt;&lt; <span class="string">"开始执行6s算法,Value="</span> &lt;&lt; value / <span class="number">10.0</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> surface</span></span><br><span class="line">                MoveToLine(infile, <span class="number">14</span>);</span><br><span class="line">                <span class="keyword">for</span> (value = <span class="number">0</span>; value &lt;= <span class="number">5</span>; value++) &#123;</span><br><span class="line">                        infile.precision(<span class="number">2</span>);</span><br><span class="line">                        infile.setf(ios::fixed);</span><br><span class="line">                        infile &lt;&lt; value/<span class="number">100.0</span>;</span><br><span class="line">                        infile.seekg(<span class="number">-4</span>, ios::cur);</span><br><span class="line">                        <span class="built_in">cout</span> &lt;&lt; <span class="string">"开始执行6s算法,Value="</span> &lt;&lt; value/<span class="number">100.0</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">                system(shell_location);<span class="comment">//调用6s软件处理</span></span><br><span class="line"><span class="comment">//<span class="doctag">TODO:</span>注释待修改</span></span><br><span class="line">                <span class="comment">/********************************************************************************</span></span><br><span class="line"><span class="comment">                 * 提取output.txt中的数据                                                          *</span></span><br><span class="line"><span class="comment">                 * TOA=output.txt中  6sv计算的表观反射率                                            *</span></span><br><span class="line"><span class="comment">                 * TOA_est=t1*(p1+(t2*p2*t3)/(1-p2)*s)  表观反射率的估算值                            *</span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line">                fstream _6soutputfile(_6s_out_location);</span><br><span class="line"><span class="comment">//提取t1</span></span><br><span class="line">                <span class="keyword">float</span> t1 = GetParameterValue(_6soutputfile, <span class="number">60</span>, <span class="number">1</span>);</span><br><span class="line"><span class="comment">//提取t2</span></span><br><span class="line">                <span class="keyword">float</span> t2 = GetParameterValue(_6soutputfile, <span class="number">125</span>, <span class="number">1</span>);</span><br><span class="line"><span class="comment">//提取t3</span></span><br><span class="line">                <span class="keyword">float</span> t3 = GetParameterValue(_6soutputfile, <span class="number">125</span>, <span class="number">2</span>);</span><br><span class="line"><span class="comment">//提取p1</span></span><br><span class="line">                <span class="keyword">float</span> p1 = GetParameterValue(_6soutputfile, <span class="number">134</span>, <span class="number">3</span>);</span><br><span class="line"><span class="comment">//提取p2</span></span><br><span class="line">                <span class="keyword">float</span> p2 = GetParameterValue(_6soutputfile, <span class="number">43</span>, <span class="number">1</span>);</span><br><span class="line"><span class="comment">//提取p3</span></span><br><span class="line">                <span class="keyword">float</span> p3 = GetParameterValue(_6soutputfile, <span class="number">134</span>, <span class="number">1</span>);</span><br><span class="line"><span class="comment">//提取w</span></span><br><span class="line">                <span class="keyword">float</span> w = GetParameterValue(_6soutputfile, <span class="number">114</span>, <span class="number">3</span>);</span><br><span class="line"><span class="comment">//提取s</span></span><br><span class="line">                <span class="keyword">float</span> s = GetParameterValue(_6soutputfile, <span class="number">131</span>, <span class="number">1</span>);</span><br><span class="line"><span class="comment">//6s生成的表观反射率</span></span><br><span class="line">                <span class="keyword">float</span> TOA = GetParameterValue(_6soutputfile, <span class="number">59</span>, <span class="number">1</span>);</span><br><span class="line">                _6soutputfile.close();</span><br><span class="line"><span class="comment">//输出提取结果</span></span><br><span class="line">                <span class="comment">//打开结果输出文件，并定位到文件为尾，目的是循环输出的时候不覆盖先前数据</span></span><br><span class="line">                <span class="function">fstream <span class="title">result_file</span><span class="params">(result_location, ios::out | ios::app)</span></span>;</span><br><span class="line">                result_file &lt;&lt; value / <span class="number">10.0</span> &lt;&lt; <span class="string">","</span>;<span class="comment">//"\t"是为了把数值横着放在下一个单元格，就是相当于在excel中敲了一个tab键</span></span><br><span class="line">                TOA_est = t1 * p3 / w + (p1 - p3 + (t2 * p2 * t3) / (<span class="number">1</span> - p2 * s)) * t1;</span><br><span class="line">                <span class="comment">/**************************************************************</span></span><br><span class="line"><span class="comment">                 * stof函数是标准库函数，意思就是把string转换为float*****************</span></span><br><span class="line"><span class="comment">                 * 上边提取时候数据都是string型的，显然没有办法计算，变成float就可以了***</span></span><br><span class="line"><span class="comment">                 **************************************************************/</span></span><br><span class="line">                result_file &lt;&lt; TOA_est &lt;&lt; <span class="string">","</span>;</span><br><span class="line">                result_file &lt;&lt; TOA &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>遥一可
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.sanchor.xyz/2019/04/05/6sV%E6%A8%A1%E6%8B%9FTOA%E7%9A%84-CPP-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/" title="辐射传输代码模拟表观反射率的 C++ 解决方法">https://www.sanchor.xyz/2019/04/05/6sV模拟TOA的-CPP-解决方法/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/cpp/" rel="tag"># cpp</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/04/%E5%BC%80%E7%AB%99%E7%AC%AC%E4%B8%80%E7%AF%87/" rel="next" title="开站第一篇">
+      开站第一篇 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#放一下作业"><span class="nav-number">1.</span> <span class="nav-text">放一下作业</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编程实现的重要性"><span class="nav-number">2.</span> <span class="nav-text">编程实现的重要性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码实现思路"><span class="nav-number">3.</span> <span class="nav-text">代码实现思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#全部代码如下-3-4完美解决方案"><span class="nav-number">4.</span> <span class="nav-text">全部代码如下(3&#x2F;4完美解决方案)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#进一步的修改方案"><span class="nav-number">4.0.1.</span> <span class="nav-text">进一步的修改方案</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#代码解析"><span class="nav-number">4.1.</span> <span class="nav-text">代码解析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#重难点"><span class="nav-number">4.2.</span> <span class="nav-text">重难点</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="遥一可"
+      src="/images/cut_cat.jpg">
+  <p class="site-author-name" itemprop="name">遥一可</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xiaoke0o" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xiaoke0o" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lengfeng1453@163.com" title="E-Mail → mailto:lengfeng1453@163.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">豫 ICP 备 19005585 号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">遥一可</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">38k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:09</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+</body>
+</html>

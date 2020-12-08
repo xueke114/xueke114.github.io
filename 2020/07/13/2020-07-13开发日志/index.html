@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_cute.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon_cute.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.sanchor.xyz","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="小可的第三篇开发笔记  主要内容：完善了影像处理的全流程（求均值、波段组合、裁剪）；完善了工具箱裁剪音视频功能；初步了解了Angular项目的操作。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2020-07-13开发日志">
+<meta property="og:url" content="https://www.sanchor.xyz/2020/07/13/2020-07-13%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/index.html">
+<meta property="og:site_name" content="小可的博客呀">
+<meta property="og:description" content="小可的第三篇开发笔记  主要内容：完善了影像处理的全流程（求均值、波段组合、裁剪）；完善了工具箱裁剪音视频功能；初步了解了Angular项目的操作。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic.downk.cc/item/5f0c5b2714195aa594879765.png">
+<meta property="og:image" content="https://pic.downk.cc/item/5f0c5f6a14195aa594890117.png">
+<meta property="og:image" content="https://pic.downk.cc/item/5f0c5fd614195aa594893432.png">
+<meta property="og:image" content="https://pic.downk.cc/item/5f0c605314195aa594895d37.png">
+<meta property="og:image" content="https://pic.downk.cc/item/5f0c60df14195aa594898999.png">
+<meta property="og:image" content="https://pic.downk.cc/item/5f0c663514195aa5948b2ff4.png">
+<meta property="article:published_time" content="2020-07-13T11:10:10.000Z">
+<meta property="article:modified_time" content="2020-12-03T12:52:59.855Z">
+<meta property="article:author" content="遥一可">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic.downk.cc/item/5f0c5b2714195aa594879765.png">
+
+<link rel="canonical" href="https://www.sanchor.xyz/2020/07/13/2020-07-13%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>2020-07-13开发日志 | 小可的博客呀</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小可的博客呀</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">当我沉默的时候，我觉得很充实，当我开口说话，就感到了空虚</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">7</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">5</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">22</span></a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.sanchor.xyz/2020/07/13/2020-07-13%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/cut_cat.jpg">
+      <meta itemprop="name" content="遥一可">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小可的博客呀">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          2020-07-13开发日志
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-13 19:10:10" itemprop="dateCreated datePublished" datetime="2020-07-13T19:10:10+08:00">2020-07-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-03 20:52:59" itemprop="dateModified" datetime="2020-12-03T20:52:59+08:00">2020-12-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/" itemprop="url" rel="index"><span itemprop="name">开发日志</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><blockquote>
+<p>小可的第三篇开发笔记</p>
+</blockquote>
+<p>主要内容：完善了影像处理的全流程（求均值、波段组合、裁剪）；完善了工具箱裁剪音视频功能；初步了解了Angular项目的操作。</p>
+<a id="more"></a>
+
+<h2 id="Python处理全流程"><a href="#Python处理全流程" class="headerlink" title="Python处理全流程"></a>Python处理全流程</h2><p>虽说是全流程，但是第一步的调用HEG做每日拼接我还是用的Shell脚本，因为它处理文件和字符串真的是太高效了，我不忍放弃。但是Shell脚本不能在Windows系统直接用，除非装的有Git bash或者msys的bash环境(mintty)。</p>
+<p>其余三个（求均值、波段组合、裁剪），都用Python+GDAL实现了，封装成了三个函数，并且在实现增加了一些通用性，比如波段合成，并没有规定必须是6个波段，而是根据读取的文件数进行判断，求均值也类似。</p>
+<p>实际今天主要是做了裁剪。裁剪说白了就是掩模，拿目标图像的形状，“印”在待处理图像上，留下印着的地方。位置是通过二者自带的地理信息自动对齐的，以达到裁剪某个区域的目的。GDAL自带了一个gdalwarp工具，也是一个命令行工具，具体参数比较多，具体参数可以参考<a href="https://www.osgeo.cn/gdal/programs/gdalwarp.html#gdalwarp" target="_blank" rel="noopener">GDAL的API文档</a>。</p>
+<p>如果只考虑单纯的裁剪的话，只需要4个参数，输入栅格文件，需要的矢量文件，指定用矢量文件的哪个图层，输出文件。</p>
+<p>但是肯定不是只需要这4个参数哇。比如要将裁剪后的图像范围扩展到掩模图像范围、要覆盖已存在的裁剪结果，等等其他的优化参数。当然我写的函数只让用户输入[输入图像，矢量图像，输出图像]，其中指定矢量图层是可选的。因为shp文件的图层名就是文件名。这个我可以在在函数中直接赋值，不用用户操心。另外其他的如裁剪结果范围与掩模图层保持一致、不压缩、输入输出格式，都是在函数中预置好的。</p>
+<h2 id="完善了工具箱"><a href="#完善了工具箱" class="headerlink" title="完善了工具箱"></a>完善了工具箱</h2><p>为了给我的GitHub的每日贡献表中加深一下颜色，我又翻出了搁置几天的工具箱小应用。添加了一个menuBar(菜单栏),一个Action(菜单项)，作用是打开Qt的关于界面，还加了一个置顶的复选框，因为Windows上没有窗口置顶的功能(Linux右键单击应用标题栏就可以选择置顶)，所以这个只在Windows有意义。另外还完善了裁剪音视频的界面布局，是模仿我以前写的的一个裁剪音视频的界面做的。嗯！还没模仿完。</p>
+<h2 id="了解了Angular项目组织"><a href="#了解了Angular项目组织" class="headerlink" title="了解了Angular项目组织"></a>了解了Angular项目组织</h2><p>Angular可以通过安装运行angular-cli初始化一个angular项目。这个项目运行后是一个效果还不错的网页，不是空的，所以项目文件比较多。今天跟着<a href="https://angular.cn/tutorial" target="_blank" rel="noopener">Angular的指引</a>，以angular-cli初始化的项目为框架，初步了解了项目的组织。</p>
+<p><img src="https://pic.downk.cc/item/5f0c5b2714195aa594879765.png" alt=""></p>
+<p>首先是这么多文件，<code>e2e</code>是一个测试项目，暂时不用。<code>node_modules</code>是nodejs的根据<code>package.json</code>目录下载下来的包，初始状态是没有的，这个有点nodejs基础的都知道。<code>src</code>是项目的核心文件。其余的，都是项目的配置信息，当然<code>.gitignore</code>是为git服务的，其余的都是项目的配置和TypeScript的配置信息。</p>
+<p><img src="https://pic.downk.cc/item/5f0c5f6a14195aa594890117.png" alt="">)<img src="https://pic.downk.cc/item/5f0c5fd614195aa594893432.png" alt=""></p>
+<p><code>src</code>有一个app文件夹，这是组成页面的核心。引用一下官方的说法。</p>
+<p>当我用<code>ng</code>命令生成了一个组件的时候，新增里4个文件，并且更新了上边图片里的<code>app.module.ts</code>文件。</p>
+<p><img src="https://pic.downk.cc/item/5f0c605314195aa594895d37.png" alt="">)<img src="https://pic.downk.cc/item/5f0c60df14195aa594898999.png" alt=""></p>
+<p>所以架构就清楚了。一个组件需要css/html/typescript三个文件（就像css/html/javascript三剑客一样。Angular用的是typescript）,组件要写入module文件。</p>
+<p>这是一个很浅的理解，语法层面内容还很深。</p>
+<h3 id="另一个小事"><a href="#另一个小事" class="headerlink" title="另一个小事"></a>另一个小事</h3><p>内容修改了，想要看到结果，可以用<code>ng serve</code>开一个在本地(localhost)4200端口(默认，可指定)的侦听服务，用来在浏览器中显示页面。当然是所见即所得的，实时修改，经过很快的自动编译后在原页面刷新。做Web,最好的就是双显示器，这边在A屏幕修改，那边在B屏幕看结果，所以我就利用我的平板电脑做B屏，在浏览访问A电脑的4200端口，但显示拒绝访问。因为A电脑用的是localhost，不是主机的局域网ip，我用B电脑访问的是A电脑的局域网ip:4200，所以打不开。</p>
+<p>通过查阅ng的文档，我找到了serve有一个参数，<code>--host</code>，可以指定监听的地址，于是我在启动<code>ng serve</code>的时候加了一句<code>ng serve --host=192.168.99.166</code>，<code>192.168.99.166</code>是我的电脑的局域网ip。这样顺利用同一个局域网的B电脑访问了A的ng服务。A上修改，B上实时刷新。Yes！</p>
+<p><img src="https://pic.downk.cc/item/5f0c663514195aa5948b2ff4.png" alt=""></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>又是紧迫的一天啊。模型建设还没起步。接下来要全心建模了，预计又是不小的脑力开支。时间和知识水平的双重压迫。唉！</p>
+<p>我有一个毛病，就是明知主线任务已经火烧眉毛了，也要去把支线任务做完，这个支线任务可能是突发奇想，也可能是无关紧要，但是我想到了却不去做，心里就是难受，尽管我知道主线任务很重要，很紧迫。定力不足哇，权衡不好主次。另一个毛病就是知道到不对，就是不改，除非是我坚信的失败了，才有可能回头。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>遥一可
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.sanchor.xyz/2020/07/13/2020-07-13%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/" title="2020-07-13开发日志">https://www.sanchor.xyz/2020/07/13/2020-07-13开发日志/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/12/2020-07-12%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/" rel="prev" title="2020-07-12开发日志">
+      <i class="fa fa-chevron-left"></i> 2020-07-12开发日志
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/07/14/2020-07-14%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/" rel="next" title="2020-07-14开发日志">
+      2020-07-14开发日志 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Python处理全流程"><span class="nav-number">1.</span> <span class="nav-text">Python处理全流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#完善了工具箱"><span class="nav-number">2.</span> <span class="nav-text">完善了工具箱</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#了解了Angular项目组织"><span class="nav-number">3.</span> <span class="nav-text">了解了Angular项目组织</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#另一个小事"><span class="nav-number">3.1.</span> <span class="nav-text">另一个小事</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="遥一可"
+      src="/images/cut_cat.jpg">
+  <p class="site-author-name" itemprop="name">遥一可</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xiaoke0o" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xiaoke0o" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lengfeng1453@163.com" title="E-Mail → mailto:lengfeng1453@163.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">豫 ICP 备 19005585 号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">遥一可</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">38k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:09</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+</body>
+</html>

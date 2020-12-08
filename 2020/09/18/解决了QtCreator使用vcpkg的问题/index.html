@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_cute.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon_cute.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.sanchor.xyz","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="我一般开发Qt应用都是用CMake，添加外部库和版本管理不知道比qmake优雅到哪里去了。linux安装外部库相当简单，并且CMake调用也相当简单，直接find_package()就能引进来。 但是，Windows就没有这么方便了。不过微软是一家有上进心的公司。微软可能是为了解决自家Vistual Studio  添加外部库繁琐的问题，开发了开源c&#x2F;c++包管理工具vcpkg，采用本地编译的方式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="解决了QtCreator使用vcpkg的问题">
+<meta property="og:url" content="https://www.sanchor.xyz/2020/09/18/%E8%A7%A3%E5%86%B3%E4%BA%86QtCreator%E4%BD%BF%E7%94%A8vcpkg%E7%9A%84%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="小可的博客呀">
+<meta property="og:description" content="我一般开发Qt应用都是用CMake，添加外部库和版本管理不知道比qmake优雅到哪里去了。linux安装外部库相当简单，并且CMake调用也相当简单，直接find_package()就能引进来。 但是，Windows就没有这么方便了。不过微软是一家有上进心的公司。微软可能是为了解决自家Vistual Studio  添加外部库繁琐的问题，开发了开源c&#x2F;c++包管理工具vcpkg，采用本地编译的方式">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://p.pstatp.com/origin/1383f0000537841d19812">
+<meta property="og:image" content="https://p.pstatp.com/origin/ffe100016ce3f898de98">
+<meta property="og:image" content="https://p.pstatp.com/origin/1386b00007be1fb6cea0c">
+<meta property="article:published_time" content="2020-09-18T14:21:47.000Z">
+<meta property="article:modified_time" content="2020-12-03T12:52:59.862Z">
+<meta property="article:author" content="遥一可">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://p.pstatp.com/origin/1383f0000537841d19812">
+
+<link rel="canonical" href="https://www.sanchor.xyz/2020/09/18/%E8%A7%A3%E5%86%B3%E4%BA%86QtCreator%E4%BD%BF%E7%94%A8vcpkg%E7%9A%84%E9%97%AE%E9%A2%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>解决了QtCreator使用vcpkg的问题 | 小可的博客呀</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小可的博客呀</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">当我沉默的时候，我觉得很充实，当我开口说话，就感到了空虚</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">7</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">5</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">22</span></a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.sanchor.xyz/2020/09/18/%E8%A7%A3%E5%86%B3%E4%BA%86QtCreator%E4%BD%BF%E7%94%A8vcpkg%E7%9A%84%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/cut_cat.jpg">
+      <meta itemprop="name" content="遥一可">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小可的博客呀">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          解决了QtCreator使用vcpkg的问题
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-09-18 22:21:47" itemprop="dateCreated datePublished" datetime="2020-09-18T22:21:47+08:00">2020-09-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-03 20:52:59" itemprop="dateModified" datetime="2020-12-03T20:52:59+08:00">2020-12-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B0%8F%E9%97%AE%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">小问题</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>我一般开发Qt应用都是用CMake，添加外部库和版本管理不知道比qmake优雅到哪里去了。linux安装外部库相当简单，并且CMake调用也相当简单，直接find_package()就能引进来。</p>
+<p>但是，Windows就没有这么方便了。不过微软是一家有上进心的公司。微软可能是为了解决自家Vistual Studio  添加外部库繁琐的问题，开发了开源c/c++包管理工具vcpkg，采用本地编译的方式进行外部库的安装，并且自动帮你依赖问题，一般编译都很顺利（网络条件要好），最好用的是，可以无缝集成到Vistual Studio中，就不需要再在项目属性手动导入外部库了，VS可以自动找到，你只需要在代码中<code>#include&lt;&gt;</code>就行了，非常方便。由于是开源的，支持的外部库相当多，版本也是较新的（可能开考虑到其他依赖问题）。</p>
+<p>并且CMake也支持的很好，甚至有些在Linux上的那些没有CMake版本的库（如qwt）,vcpkg也写好了CMake的查找脚本。非常方便。</p>
+<a id="more"></a>
+
+<p>我写一般的CMake项目一般用CLion，后来Windows对开源支持越来越好，Vistual Studio对CMake的支持也相当好了，加上与vcpkg的无缝集成，外部库的添加也相当舒服。</p>
+<p>当然CLion也是可以很方便调用vcpkg安装的东西的，方法是在项目的CMake Option中添加一句<code>-DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake</code>，该句的目的是使cmake的包查找目录包含vcpkg的安装内容。这句语句会在cmake 执行configure的时候执行</p>
+<p>我一般写Qt的项目用QtCreator，编译管理工具用CMake，Clion能用vcpkg的包，我想QtCreator应该也可以。最终我在项目设置页找到了入口。在CMake初始化参数中，输入上述语句，</p>
+<p><img src="https://p.pstatp.com/origin/1383f0000537841d19812" alt=""></p>
+<p>然后清理Cmake的configuration信息，再重新执行cmake，<code>-DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake</code>这句就会在CMake configure中加进去了</p>
+<p><img src="https://p.pstatp.com/origin/ffe100016ce3f898de98" alt=""></p>
+<p>正是我们想要的结果。</p>
+<p><img src="https://p.pstatp.com/origin/1386b00007be1fb6cea0c" alt=""></p>
+<p>然后就可以在CMakeLists.txt中愉快地find和link了。</p>
+<p>需要注意的是，切换到release模式，也要重新添加操作一次哦。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>遥一可
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.sanchor.xyz/2020/09/18/%E8%A7%A3%E5%86%B3%E4%BA%86QtCreator%E4%BD%BF%E7%94%A8vcpkg%E7%9A%84%E9%97%AE%E9%A2%98/" title="解决了QtCreator使用vcpkg的问题">https://www.sanchor.xyz/2020/09/18/解决了QtCreator使用vcpkg的问题/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/29/Arch-Manjaro%E5%AE%89%E8%A3%85%E5%BE%AE%E4%BF%A1-TIM%E7%9A%84%E6%AD%A3%E7%A1%AE%E6%96%B9%E6%B3%95/" rel="prev" title="Arch/Manjaro安装微信/TIM的正确方法">
+      <i class="fa fa-chevron-left"></i> Arch/Manjaro安装微信/TIM的正确方法
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/11/30/%E8%A7%A3%E5%86%B3%E4%BA%86CLion%E4%BD%BF%E7%94%A8VS%E7%BC%96%E8%AF%91%E4%BD%BF%E7%94%A8%E4%BA%86qt5-create-translation%E7%9A%84Qt%E9%A1%B9%E7%9B%AE%E6%8A%A5build-make-65-fatal-error-U1036-%E7%9A%84%E9%97%AE%E9%A2%98/" rel="next" title="解决了CLion使用VS编译使用了qt5_create_translation的Qt项目报build.make(65):fatal error U1036:的问题">
+      解决了CLion使用VS编译使用了qt5_create_translation的Qt项目报build.make(65):fatal error U1036:的问题 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="遥一可"
+      src="/images/cut_cat.jpg">
+  <p class="site-author-name" itemprop="name">遥一可</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xiaoke0o" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xiaoke0o" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lengfeng1453@163.com" title="E-Mail → mailto:lengfeng1453@163.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">豫 ICP 备 19005585 号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">遥一可</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">38k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:09</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_cute.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon_cute.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.sanchor.xyz","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="小可的第一篇开发日志  主要内容：遥感影像批量拼接(Shell、正则表达式),求均值(Python)、web应用初探索(JavaScript)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2020-07-11开发日志">
+<meta property="og:url" content="https://www.sanchor.xyz/2020/07/11/2020-07-11%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/index.html">
+<meta property="og:site_name" content="小可的博客呀">
+<meta property="og:description" content="小可的第一篇开发日志  主要内容：遥感影像批量拼接(Shell、正则表达式),求均值(Python)、web应用初探索(JavaScript)">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic.downk.cc/item/5f09e4b714195aa594598cb1.png">
+<meta property="og:image" content="https://pic.downk.cc/item/5f0a72c914195aa594decfc5.png">
+<meta property="article:published_time" content="2020-07-11T15:04:11.000Z">
+<meta property="article:modified_time" content="2020-12-03T12:52:59.853Z">
+<meta property="article:author" content="遥一可">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic.downk.cc/item/5f09e4b714195aa594598cb1.png">
+
+<link rel="canonical" href="https://www.sanchor.xyz/2020/07/11/2020-07-11%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>2020-07-11开发日志 | 小可的博客呀</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小可的博客呀</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">当我沉默的时候，我觉得很充实，当我开口说话，就感到了空虚</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">7</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">5</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">22</span></a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.sanchor.xyz/2020/07/11/2020-07-11%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/cut_cat.jpg">
+      <meta itemprop="name" content="遥一可">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小可的博客呀">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          2020-07-11开发日志
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-11 23:04:11" itemprop="dateCreated datePublished" datetime="2020-07-11T23:04:11+08:00">2020-07-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-03 20:52:59" itemprop="dateModified" datetime="2020-12-03T20:52:59+08:00">2020-12-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/" itemprop="url" rel="index"><span itemprop="name">开发日志</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>7 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><blockquote>
+<p>小可的第一篇开发日志</p>
+</blockquote>
+<p>主要内容：遥感影像批量拼接(Shell、正则表达式),求均值(Python)、web应用初探索(JavaScript)</p>
+<a id="more"></a>
+
+<h2 id="遥感影像拼接求均值"><a href="#遥感影像拼接求均值" class="headerlink" title="遥感影像拼接求均值"></a>遥感影像拼接求均值</h2><p>前天做好的多波段影像求均值，并且生成了产品发给了组员，昨天和今天在攻克从hdf到每日批量自动拼接的程序，并对拼接好的程序求均值输出。当然求均值的程序还是前天写好的，今天只是调用了一下。</p>
+<p>为了实现从图像处理到建模分析再到评估应用的大一统，决定摆脱影像处理阶段对IDL的依赖，转为Python+GDAL处理。</p>
+<p>影像处理阶段我概括为</p>
+<pre class="mermaid">graph LR
+A[HDF原始文件]-->B[分波段重投影每日拼接]
+B-->D[分波段求均值]
+D-->E[分波段批量裁剪]
+E-->F[波段组合为单文件]</pre>
+
+<p>当然方案不唯一，比如裁剪可以和求均值互换位置、可以一开始就生成多波段影像再进行处理。</p>
+<p>第一步分波段重投影每日拼接我是用Shell脚本调用NASA的HEG工具做的，具体的介绍可以看<a href="https://zhuanlan.zhihu.com/p/50904570" target="_blank" rel="noopener">这篇知乎文章</a>，他有一个GUI界面，但是在GUI不能做批量处理，想批量处理得这么做</p>
+<pre class="mermaid">graph TB
+a[将待处理文件名及信息按规定写入信息文件]
+b[处理工具读取信息文件]
+c[处理工具输出结果]
+d[修改信息文件]
+a-->b
+b-->c
+c-->d
+d-->a</pre>
+
+<p>很多语言都可以实现修改文本文件和调用外部程序的操作，我这里为了高效，用了Shell脚本作为驱动引擎(当然Python也可以实现啦)，来实现<strong>信息文件的修改和处理工具的调用运行</strong>。</p>
+<blockquote>
+<p>呼！说了这么多终于到正题了。</p>
+</blockquote>
+<p>我一直用的是Linux，（哦对了，HEG这个处理工具也有WIndows版本，在WIndows平台写了bat脚本或者PowerShell脚本也可以实现一样的作用），所以写脚本首先想到的是bash语言，但是我这Manjaro默认的是zsh，查了一下zsh语言比bash语言更灵活不反人类，所以就想着用zsh的语法写了一个脚本，确实zsh更人性化一点，比如赋值、运算和for循环都更好用，基本操作可以看<a href="https://zhuanlan.zhihu.com/p/28887846" target="_blank" rel="noopener">这篇知乎文章</a>。本来有以下bash的基础，所以写起来并不难。</p>
+<blockquote>
+<p>哦！又到了最难的解释代码原理的时间了。以下内容非常枯燥难懂，可能只有我知道我在说什么。</p>
+<p>现在是2020年7月12日凌晨12点13，我感觉写完天都要亮了，先不写了，睡觉。真的确实复杂。</p>
+</blockquote>
+<blockquote>
+<p>2020年7月12日8点，继续</p>
+</blockquote>
+<p>首先明确我们要干什么。这是我们要处理的文件的一部分，全部文件是从<strong>2018年的第47天到第76天</strong>，一共30天，每天有若干张影像，每张影像都包含我们要的6个数据集（A，B，C，D，E，F），我要做的就是把每天的影像中的6个波段提取出来，再按照天为集合拼接起来，如2018047这一天，有21张，拼接好就是一张2018047A.tif，一张2018047B.tif，一张2018047C.tif，一张2018047D.tif，一张2018047E.tif和一张2018047F.tif，其他天的也一样。当然我想着最好是拼接直接生成一张2018047ABCDEF.tif的6波段影像,这样方便后期处理，但是我还不直到怎么用这个HEG软件做拼接多波段影像，<strong>应该是可以的</strong>。</p>
+<p><img src="https://pic.downk.cc/item/5f09e4b714195aa594598cb1.png" alt=""></p>
+<p>其次我们的信息文件长这样（再次明确我们是要拼接多幅影像组成大影像）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">NUM_RUNS &#x3D; 3</span><br><span class="line"></span><br><span class="line">BEGIN</span><br><span class="line">NUMBER_INPUTFILES &#x3D; 19</span><br><span class="line">INPUT_FILENAMES &#x3D; inputfiles</span><br><span class="line">OBJECT_NAME &#x3D; mod04|</span><br><span class="line">FIELD_NAME &#x3D; Corrected_Optical_Depth_Land|</span><br><span class="line">BAND_NUMBER &#x3D; 2</span><br><span class="line">SPATIAL_SUBSET_UL_CORNER &#x3D; ( 60.0 70.0 )</span><br><span class="line">SPATIAL_SUBSET_LR_CORNER &#x3D; ( 0.0 140.0 )</span><br><span class="line">OUTPUT_OBJECT_NAME &#x3D; mod04|</span><br><span class="line">OUTGRID_X_PIXELSIZE &#x3D; 0.090165</span><br><span class="line">OUTGRID_Y_PIXELSIZE &#x3D; 0.091936</span><br><span class="line">RESAMPLING_TYPE &#x3D; NN</span><br><span class="line">OUTPUT_PROJECTION_TYPE &#x3D; GEO</span><br><span class="line">ELLIPSOID_CODE &#x3D; WGS84</span><br><span class="line">OUTPUT_PROJECTION_PARAMETERS &#x3D; ( 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  )</span><br><span class="line">OUTPUT_FILENAME &#x3D; &#x2F;run&#x2F;media&#x2F;xiaoke&#x2F;Data&#x2F;U3B_Paper&#x2F;usedDATA&#x2F;2019raw&#x2F;DT550&#x2F;MYD04_L2.A2019066_DT.tif</span><br><span class="line">SAVE_STITCHED_FILE &#x3D; NO</span><br><span class="line">OUTPUT_STITCHED_FILENAME &#x3D; &#x2F;home&#x2F;xiaoke&#x2F;Documents&#x2F;testHEG&#x2F;output&#x2F;DB550&#x2F;MYD04_L2.A2018076_DT.tif</span><br><span class="line">OUTPUT_TYPE &#x3D; GEO</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>第一行。处理工具调用该文件一次，处理几次下边BEGIN–END之间的内容。</p>
+</li>
+<li><p>第三行。开始的标志。死的不用管。</p>
+</li>
+<li><p><strong>第四行</strong>。输入文件(待拼接的文件集合的数目)。这个是动态的，因为这次的集合数量和下次的集合数量不一定相同，如2018047这一天是21，下一天就不一定了，总之都在20左右波动。这个需要根据情况实现自动动态修改。</p>
+</li>
+<li><p><strong>第五行</strong>。输入文件的全部绝对路径。当然我们是将每天的所有文件拼接嘛，拿2018047为例，<code>INPUT_FILENAMES</code>的值就是21个文件的绝对路径。/home/xiaoke/Documents/U3B_Paper/originalDATA/2018_1to30/MYD04_L2.A2018047.0020.061.2018052073242.hdf|/home/xiaoke/Documents/U3B_Paper/originalDATA/2018_1to30/MYD04_L2.A2018047.0155.061.2018052073344.hdf|等等等直到2018047的最后一张（太长了不列全部了），路径之间用“|”隔开。</p>
+</li>
+<li><p>第六行。hdf文件中数据集所在的父目录。这是hdf文件的特点，数据是树状结构，就像是文件夹。该选项就是我们需要的数据集所在的目录名（当然这个目录名是在hdf文件中的，并不是系统的目录）。输入好就是死的不用管</p>
+</li>
+<li><p>第七行。数据集名。这就是我们要处理的数据集了。因为HEG一个任务（BEGIN—END）只能处理一个数据集。输入好就是死的不用管</p>
+</li>
+<li><p>第八行。要处理的波段。hdf的一个数据集可以是多波段的，比如上边的这个<code>Corrected_Optical_Depth_Land</code>数据集，他包含了0.47、0.55 和0.66 µm的光学厚度信息，我们要的是0.55µm的，所以值为2。这个和第七行是绑定的关系，所以设置好了也不需要修改。<img src="https://pic.downk.cc/item/5f0a72c914195aa594decfc5.png" alt=""></p>
+</li>
+<li><p>第九行第十行。是输出的范围。分别是左上角的（纬度，经度）、右下角的（纬度，精度）。纬度北半球为正，南半球为负；经度本初子午线向东为正，向西为负。所以该字段可以作为一个裁剪的功能使用。设置好了就是死的。</p>
+</li>
+<li><p>第十一行。输出的数据集的父目录。可以看第六行的解释。当然我们输出的是tif文件，不是hdf文件，所以这一项没啥用。</p>
+</li>
+<li><p>第十二十三行。输出图像沿X方向（经度）与Y方向（纬度）的像素大小。这个可以用HEG的GUI工具查看。</p>
+</li>
+<li><p>第十四行。重采样方法。采用缩写格式，有NN（最近邻域）、BI（双线性）和CC（立方卷积）。虽然官方文档也说默认用这个，但是GUI中只有NN可以用。自己选择好不用修改。</p>
+</li>
+<li><p>第十五行。投影类型。GEO是使用源文件的地理坐标投影。其他的投影像UTM、LAMBERT_AZIMUTHAL等都可以用。</p>
+</li>
+<li><p>第十六行。参考椭球坐标系。WGS84。死的不用改。</p>
+</li>
+<li><p>第十七行。15个投影参数。默认保存0即可（UTM投影例外）。死的不用改。</p>
+</li>
+<li><p><strong>第十八行</strong>。输出文件路径。输出文件的绝对路径。是变化的，每天的输出文件名要按照天数值命名，每天是不一样的。</p>
+</li>
+<li><p>后边三行没用，将在未来删除。但是也得填。</p>
+</li>
+</ul>
+<p>加粗的字段是在每个迭代周期都需要修改的，其余的在处理该数据集时不需要修改。</p>
+<p>一个迭代周期是说的2018047、2018048这样的天文件单位，为而不是一个文件为一个迭代周期。</p>
+<p>具体用法，可以看官方PDF文档，<a href="https://edhs1.gsfc.nasa.gov/edhs/HEG_Tool/Version2.13/EED2-TP-002_HEG_UsersGuide_2.13.pdf" target="_blank" rel="noopener">传送门</a></p>
+<blockquote>
+<p>背景介绍完了，直接上代码。</p>
+</blockquote>
+<p>先上流程图。</p>
+<h2 id="Web应用初探索"><a href="#Web应用初探索" class="headerlink" title="Web应用初探索"></a>Web应用初探索</h2><p>今天了解了一些Web框架和JavaScript库。Angalur框架、Vue.js框架、React库。分别在WebStorm创建了三个项目，发现Vue.js的项目最简单，其次是Angalur，并且Angalur的实例最好看，最后是React，项目组织比较复杂，然后做出来的页面只有一个Logo，毕竟他只是个库，不是框架，项目文件比较多可以理解。所以我决定从Angalur下手。当然事先得再巩固以下CSS/HTML/JS三剑客的语法了。时间太常不用就忘了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>当把最初脑子里快速闪过的想法总结成现在的文字，写得越详细，就感觉当初的想法当初的程序怎么这么烂，写着写着就会发现更好的解决方案。『为什么不这么做呢』，于是就又去改程序。但又一想，我这是日志啊，不是完美教程，应该如实记录。所以就把思路赶紧记下来，划拨到明天的工作中去。</p>
+<h2 id="明日（2020-07-12）安排"><a href="#明日（2020-07-12）安排" class="headerlink" title="明日（2020-07-12）安排"></a>明日（2020-07-12）安排</h2><ul>
+<li>打通Python+GDAL的波段组合与裁剪（目测很好实现，希望细节不要给我挖坑）</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>遥一可
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.sanchor.xyz/2020/07/11/2020-07-11%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/" title="2020-07-11开发日志">https://www.sanchor.xyz/2020/07/11/2020-07-11开发日志/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/30/CUDA%E5%AE%89%E8%A3%85%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97/" rel="prev" title="CUDA安装避坑指南Windows篇">
+      <i class="fa fa-chevron-left"></i> CUDA安装避坑指南Windows篇
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/07/12/2020-07-12%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/" rel="next" title="2020-07-12开发日志">
+      2020-07-12开发日志 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#遥感影像拼接求均值"><span class="nav-number">1.</span> <span class="nav-text">遥感影像拼接求均值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Web应用初探索"><span class="nav-number">2.</span> <span class="nav-text">Web应用初探索</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#明日（2020-07-12）安排"><span class="nav-number">4.</span> <span class="nav-text">明日（2020-07-12）安排</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="遥一可"
+      src="/images/cut_cat.jpg">
+  <p class="site-author-name" itemprop="name">遥一可</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xiaoke0o" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xiaoke0o" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lengfeng1453@163.com" title="E-Mail → mailto:lengfeng1453@163.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">豫 ICP 备 19005585 号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">遥一可</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">38k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:09</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+</body>
+</html>

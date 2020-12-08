@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_cute.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon_cute.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.sanchor.xyz","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="小可的第五篇开发笔记  主要内容：QML的一些控件的使用。 前两天没有写是因为没有遇到什么麻烦问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2020-07-17开发日志">
+<meta property="og:url" content="https://www.sanchor.xyz/2020/07/17/2020-07-17%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/index.html">
+<meta property="og:site_name" content="小可的博客呀">
+<meta property="og:description" content="小可的第五篇开发笔记  主要内容：QML的一些控件的使用。 前两天没有写是因为没有遇到什么麻烦问题。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic.downk.cc/item/5f11aaef14195aa5941cf0d6.png">
+<meta property="og:image" content="https://pic.downk.cc/item/5f11b37f14195aa5941f8d34.png">
+<meta property="og:image" content="https://pic.downk.cc/item/5f11bfa414195aa594234b9e.png">
+<meta property="og:image" content="https://pic.downk.cc/item/5f11c00f14195aa5942369de.png">
+<meta property="article:published_time" content="2020-07-17T13:25:42.000Z">
+<meta property="article:modified_time" content="2020-12-03T12:52:59.856Z">
+<meta property="article:author" content="遥一可">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic.downk.cc/item/5f11aaef14195aa5941cf0d6.png">
+
+<link rel="canonical" href="https://www.sanchor.xyz/2020/07/17/2020-07-17%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>2020-07-17开发日志 | 小可的博客呀</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小可的博客呀</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">当我沉默的时候，我觉得很充实，当我开口说话，就感到了空虚</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">7</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">5</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">22</span></a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.sanchor.xyz/2020/07/17/2020-07-17%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/cut_cat.jpg">
+      <meta itemprop="name" content="遥一可">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小可的博客呀">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          2020-07-17开发日志
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-17 21:25:42" itemprop="dateCreated datePublished" datetime="2020-07-17T21:25:42+08:00">2020-07-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-03 20:52:59" itemprop="dateModified" datetime="2020-12-03T20:52:59+08:00">2020-12-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/" itemprop="url" rel="index"><span itemprop="name">开发日志</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.8k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><blockquote>
+<p> 小可的第五篇开发笔记</p>
+</blockquote>
+<p>主要内容：QML的一些控件的使用。</p>
+<p>前两天没有写是因为没有遇到什么麻烦问题。</p>
+<a id="more"></a>
+
+<p>今天开始认真的使用QML的语法写Qt的UI，以前也观察过用QML写UI的示例工程，不过没有认真的分析，今天对QML的逻辑有了新的小进步。</p>
+<p>首先QML写的UI比传统的widget，主要的优势在面向触摸屏设备和移动设备中，有更好的画面过渡和动画。语法类似JSON，并且可以交叉JavaScript的语法。我认为的基本控件逻辑是</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">组件名&#123;</span><br><span class="line">	本组建属性&#123;</span><br><span class="line">    属性1：xxx</span><br><span class="line">    属性2：xxx</span><br><span class="line">    ...</span><br><span class="line">	&#125;</span><br><span class="line">	子组件名&#123;</span><br><span class="line">     本组建属性&#123;</span><br><span class="line">        属性1：xxx</span><br><span class="line">        属性2：xxx</span><br><span class="line">		&#125;   </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果一个属性有多个可设置项，可以用<code>{}</code>括起来，具体的属性是<code>{属性名：属性值}</code></p>
+<p>今天主要做的是这个侧边抽屉，内容为行排列的两个列表选项，和按列排列的三个位于脚部的按钮。</p>
+<p>这五个按钮是五个<code>ItemDelegate</code>,我也不知道怎么翻译好，功能就是可以点击的文字按钮，但又不是独立的Button。这5个按钮都是<code>ItemDelegate</code>，只是排列方式不同。</p>
+<p><img src="https://pic.downk.cc/item/5f11aaef14195aa5941cf0d6.png" alt=""></p>
+<center>图1</center>
+
+<p>单单这一个抽屉页面，架构是这样的，不是源代码，不是源代码，不是源代码</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">Drawer&#123;</span><br><span class="line">    属性1：xxx</span><br><span class="line">    属性2：xxx</span><br><span class="line">    ListView&#123;</span><br><span class="line">		anchors.fill: parent</span><br><span class="line">    	属性2：xxx</span><br><span class="line">    	Column&#123;</span><br><span class="line">           anchors.fill: parent</span><br><span class="line">           ItemDelegate&#123;</span><br><span class="line">                text: qsTr("写模式")</span><br><span class="line">                width: parent.width</span><br><span class="line">           &#125;</span><br><span class="line">           ItemDelegate&#123;</span><br><span class="line">                text: qsTr("读模式")</span><br><span class="line">                width: parent.width</span><br><span class="line">           &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    	footer:Row&#123;</span><br><span class="line">            id: footer</span><br><span class="line">            width: parent.width</span><br><span class="line">            ItemDelegate&#123;</span><br><span class="line">                 width: parent.width*3/7</span><br><span class="line">                 text: "\uf186 夜间模式"</span><br><span class="line">            &#125;</span><br><span class="line">            ItemDelegate&#123;</span><br><span class="line">                  width: parent.width*2/7</span><br><span class="line">                  text: qsTr("\uf085 设置")</span><br><span class="line">            &#125;</span><br><span class="line">            ItemDelegate&#123;</span><br><span class="line">                  width: parent.width*2/7</span><br><span class="line">                  text: qsTr("\uf011 退出")</span><br><span class="line">                  onClicked: &#123;</span><br><span class="line">                      window.close()</span><br><span class="line">                  &#125;</span><br><span class="line">            &#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>是不是挺乱的。不过咱们慢慢看。</p>
+<ul>
+<li><p>首先有5个<code>ItemDelegate</code>可以看出来吧。</p>
+</li>
+<li><p>上边的两个“读模式”、“写模式”，可以看出来都在<code>Column</code>中吧。</p>
+</li>
+<li><p>在底部的3个，“夜间模式”，“设置”，“退出”，可以看出来都在<code>footer:Row</code>中吧。</p>
+</li>
+<li><p>然后<code>Column</code>和<code>footer:Row</code>都包含在<code>ListView</code>中吧。</p>
+</li>
+<li><p>最后<code>ListView</code>都在<code>Drawer</code>中吧。</p>
+</li>
+</ul>
+<p>好。倒着我们说完了，下面正着解释一下。</p>
+<p>像第一张图那样，一个侧边的抽屉页面，就是一个<code>Drawer</code>。我们在抽屉页面上放一个<code>ListView</code>,列表视图。</p>
+<p><code>ListView</code>有4种形态，可以通过属性值规定，我们使用传统的<code>Top to botton</code>。</p>
+<p><img src="https://pic.downk.cc/item/5f11b37f14195aa5941f8d34.png" alt=""></p>
+<p>头部暂时没有用到，只用了中间部分和脚部。</p>
+<p>中间的2个<code>ItemDelegate</code>放在了一个<code>Column</code>布局下，<code>Column</code>就是栏，不过我们更熟悉的意思是矩阵中的“列”，我们就叫他栏布局吧，表现形式就是一条一条的。所以这2个<code>ItemDelegate</code>的布局搞定了</p>
+<p>footer部分，首先用<code>footer:Row</code>规定了footer部分的布局是纵向排列的，<code>Row</code>的意思是“行”，col和row就是列和行的意思，在矩阵中格外常见。表现形式就是图1中的三栏。所以这3个<code>ItemDelegate</code>的布局也搞定了。</p>
+<p>当然这只是非常浅显的道理，其中还有两个对布局起决定性作用的就是<code>anchor</code>和<code>Margin</code>。即锚和边距。</p>
+<p>锚起到固定的作用，比如第5行的<code>anchors.fill: parent</code>，意思是将<code>ListView</code>填充到他的<code>parent</code>父组件中。类似的还可以规定<code>anchor.left</code> 、<code>anchor.top</code>等</p>
+<p><img src="https://pic.downk.cc/item/5f11bfa414195aa594234b9e.png" alt="锚点"></p>
+<p>边距。顾名思义，可以在锚的基础上，再进行精细化的偏移。</p>
+<p><img src="https://pic.downk.cc/item/5f11c00f14195aa5942369de.png" alt="边距"></p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>遥一可
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.sanchor.xyz/2020/07/17/2020-07-17%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/" title="2020-07-17开发日志">https://www.sanchor.xyz/2020/07/17/2020-07-17开发日志/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/14/2020-07-14%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/" rel="prev" title="2020-07-14开发日志">
+      <i class="fa fa-chevron-left"></i> 2020-07-14开发日志
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/07/21/2020-07-21%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97/" rel="next" title="2020-07-21开发日志">
+      2020-07-21开发日志 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="遥一可"
+      src="/images/cut_cat.jpg">
+  <p class="site-author-name" itemprop="name">遥一可</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xiaoke0o" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xiaoke0o" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lengfeng1453@163.com" title="E-Mail → mailto:lengfeng1453@163.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">豫 ICP 备 19005585 号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">遥一可</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">38k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:09</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+</body>
+</html>

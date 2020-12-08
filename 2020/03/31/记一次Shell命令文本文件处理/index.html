@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_cute.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon_cute.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.sanchor.xyz","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="情景介绍准备用服务器下载1831张卫星照片，一晚上时间下载好了，发现只下载了1293张，换言之还有538张照片没有下载。 通过查看下载日志发现出现了大量的Time-out错误，毕竟国外的网站，还是预料之中的。  要找出这538张照片的文件名，并按照https:&#x2F;&#x2F;ladsweb.modaps.eosdis.nasa.gov&#x2F;archive&#x2F;orders&#x2F;订单号&#x2F;文件名的格式组合出下载链接，并重新下">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次Shell命令文本文件处理">
+<meta property="og:url" content="https://www.sanchor.xyz/2020/03/31/%E8%AE%B0%E4%B8%80%E6%AC%A1Shell%E5%91%BD%E4%BB%A4%E6%96%87%E6%9C%AC%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86/index.html">
+<meta property="og:site_name" content="小可的博客呀">
+<meta property="og:description" content="情景介绍准备用服务器下载1831张卫星照片，一晚上时间下载好了，发现只下载了1293张，换言之还有538张照片没有下载。 通过查看下载日志发现出现了大量的Time-out错误，毕竟国外的网站，还是预料之中的。  要找出这538张照片的文件名，并按照https:&#x2F;&#x2F;ladsweb.modaps.eosdis.nasa.gov&#x2F;archive&#x2F;orders&#x2F;订单号&#x2F;文件名的格式组合出下载链接，并重新下">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic.downk.cc/item/5e833869504f4bcb043adf95.png">
+<meta property="og:image" content="https://pic.downk.cc/item/5e834550504f4bcb04454562.png">
+<meta property="og:image" content="https://pic.downk.cc/item/5e834758504f4bcb0446d80c.png">
+<meta property="og:image" content="https://pic.downk.cc/item/5e8356d9504f4bcb0453a110.png">
+<meta property="og:image" content="https://pic.downk.cc/item/5e835962504f4bcb0455ced2.png">
+<meta property="og:image" content="https://pic.downk.cc/item/5e8359e4504f4bcb045633db.png">
+<meta property="article:published_time" content="2020-03-31T11:40:50.000Z">
+<meta property="article:modified_time" content="2020-12-03T12:52:59.849Z">
+<meta property="article:author" content="遥一可">
+<meta property="article:tag" content="Shell">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic.downk.cc/item/5e833869504f4bcb043adf95.png">
+
+<link rel="canonical" href="https://www.sanchor.xyz/2020/03/31/%E8%AE%B0%E4%B8%80%E6%AC%A1Shell%E5%91%BD%E4%BB%A4%E6%96%87%E6%9C%AC%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>记一次Shell命令文本文件处理 | 小可的博客呀</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小可的博客呀</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">当我沉默的时候，我觉得很充实，当我开口说话，就感到了空虚</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签<span class="badge">7</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类<span class="badge">5</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档<span class="badge">22</span></a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.sanchor.xyz/2020/03/31/%E8%AE%B0%E4%B8%80%E6%AC%A1Shell%E5%91%BD%E4%BB%A4%E6%96%87%E6%9C%AC%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/cut_cat.jpg">
+      <meta itemprop="name" content="遥一可">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小可的博客呀">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          记一次Shell命令文本文件处理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-31 19:40:50" itemprop="dateCreated datePublished" datetime="2020-03-31T19:40:50+08:00">2020-03-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-03 20:52:59" itemprop="dateModified" datetime="2020-12-03T20:52:59+08:00">2020-12-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/coding/" itemprop="url" rel="index"><span itemprop="name">coding</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>6 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="情景介绍"><a href="#情景介绍" class="headerlink" title="情景介绍"></a>情景介绍</h2><p>准备用服务器下载1831张卫星照片，一晚上时间下载好了，发现只下载了1293张，换言之还有538张照片没有下载。</p>
+<p>通过查看下载日志发现出现了大量的Time-out错误，毕竟国外的网站，还是预料之中的。</p>
+<p><img src="https://pic.downk.cc/item/5e833869504f4bcb043adf95.png" alt=""></p>
+<p>要找出这538张照片的文件名，并按照<code>https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/订单号/文件名</code>的格式组合出下载链接，并重新下载这538照片。</p>
+<p>现在有的资源</p>
+<ul>
+<li>1831张照片的文件名文档</li>
+<li>下载好的1293张照片文件</li>
+</ul>
+<p><big><strong>怎么求那528张照片的文件名？</strong></big></p>
+<a id="more"></a>
+
+<h2 id="我的方法"><a href="#我的方法" class="headerlink" title="我的方法"></a>我的方法</h2><p>是不是很明显啦。从总的文件名中减去下载好的文件名就是需要的文件名啊。</p>
+<p><img src="https://pic.downk.cc/item/5e834550504f4bcb04454562.png" alt=""></p>
+<p>问题就拆分成了</p>
+<ol>
+<li>得到所有待下载的文件名</li>
+<li>已下载文件的文件名</li>
+<li>丢失文件的文件名</li>
+<li>组合成下载链接</li>
+</ol>
+<h3 id="1-得到所有待下载的文件名"><a href="#1-得到所有待下载的文件名" class="headerlink" title="1. 得到所有待下载的文件名"></a>1. 得到所有待下载的文件名</h3><p>所有文件的文件名文件官方没有直接提供，不过提供了一个用于文件有效性校验的文件<code>checksums_501429940</code>，里面包含了该订单中的所有文件名（部分内容如下图）。这个文件在最后下载，所幸没有Time-out。</p>
+<p><img src="https://pic.downk.cc/item/5e834758504f4bcb0446d80c.png" alt=""></p>
+<p>首先要去掉干扰项，即去掉1-5行。这里为我们用<strong>sed命令</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed '1,5d' Input/MYD04_L2.2003/checksums_501429940 &gt; allchecksum.txt</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>d 参数是删除行的意思。1,5d 是删除1-5行</p>
+<p>Input/MYD04_L2.2003/checksums_501429940 是待操作的文件路径</p>
+<p>‘&gt;’是重定向符。意思是把操作结果重定向到箭头指向的文件（即将处理结果输出到该文件）</p>
+<p>allchecksum.txt 是输出结果的文件</p>
+</blockquote>
+<blockquote>
+<p> 顺便一提，如果不用重定向符号结果会直接在终端打印出来。</p>
+</blockquote>
+<p>接下来，就是要提取出来第三列的文件名了。这里我们用<strong>awk命令</strong><sup id="fnref:1"><a href="#fn:1" rel="footnote"><span class="hint--top hint--error hint--medium hint--rounded hint--bounce" aria-label="准确地说awk是一种编程语言，有自己的语法。这里只是最简单的一个应用。详细用法可以看这个[awk语法说明](https://man.linuxde.net/awk)">[1]</span></a></sup></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk '&#123;print $3&#125;' allchecksum.txt &gt; allfilename.txt</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>单引号之间的是awk要执行的内容 ，后面紧跟的是输入文件</p>
+<p>输出内容重定向到allfilename.txt</p>
+</blockquote>
+<h3 id="2-已下载文件的文件名"><a href="#2-已下载文件的文件名" class="headerlink" title="2. 已下载文件的文件名"></a>2. 已下载文件的文件名</h3><p>所有的下载文件都在一个<code>Input/MYD04_L2.2003/</code>的文件夹下，怎么把该目录下所有文件名保存到一个文件呢？</p>
+<p>我想只要有点Linux基础的同学都知道<strong><code>ls</code>命令</strong>，输出目录下的文件夹和文件名，不加参数的<code>ls</code>命令只能输出该文件夹下的1层内容。由于我下载的文件都在<code>Input/MYD04_L2.2003/</code>文件夹下，没有嵌套文件夹，所以<code>ls</code>命令就很合适。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls Input/MYD04_L2.2003/ -I checksum* &gt; downloadfilename.txt</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>模式跟sed差不多。输出ls的输出内容到downloadfilename.txt</p>
+<p>-I 参数的意思是 ignore 忽略的意思。因为这个文件夹下还下载的有上面我们说的校验文件checksums_501429940，所以要排除了它。</p>
+</blockquote>
+<h3 id="3-丢失的文件名"><a href="#3-丢失的文件名" class="headerlink" title="3. 丢失的文件名"></a>3. 丢失的文件名</h3><p>前两项条件都具备了，就剩出结果了。这里我们用<strong>grep命令</strong>。grep是我非常常用的搜索并输出文本文件某一字段的命令。这里我们用它的反向匹配功能。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -v -f downloadfilename.txt allfilename.txt &gt; lostfilename.txt</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>grep -v -f fileA fileB &gt; fileC</p>
+<p>-v参数意思是反向匹配，类似于反选</p>
+<p>-f 文件名A   的意思是从文件A中作为获取匹配源，每一行作为一个匹配项</p>
+<p>fileB作为匹配的目标</p>
+<p>fileC作为匹配结果的输出文件</p>
+</blockquote>
+<p>结果如下图</p>
+<p><img src="https://pic.downk.cc/item/5e8356d9504f4bcb0453a110.png" alt=""></p>
+<h3 id="4-组合成下载链接"><a href="#4-组合成下载链接" class="headerlink" title="4. 组合成下载链接"></a>4. 组合成下载链接</h3><p>下载链接的格式是固定的，如下：</p>
+<p><code>https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/订单号/文件名</code></p>
+<p>订单号是固定的，我们要做的就是在上一步结果的基础上在开头加上<code>https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/订单号/</code>字符串</p>
+<p>这次我们依然使用<strong>awk脚本</strong>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">awk '&#123;</span><br><span class="line">    fatherlink="https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/";</span><br><span class="line">	orderNum="501429940";</span><br><span class="line">	print fatherlink orderNum "/" $0&#125;' lostfilename.txt &gt;lostfilelink.txt</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>首先做了父链接和订单号的字符串定义，每一句用;分开</p>
+<p>print fatherlink orderNum “/“ $0  的意思是 在所有列的开头加上fatherlink orderNum “/“ 字符串。</p>
+<p>没有双引号，没有加号，就这么简单粗暴地就把字符串组合了。</p>
+</blockquote>
+<p>最后结果输出到lostfilelink.txt文件，如图：</p>
+<p><img src="https://pic.downk.cc/item/5e835962504f4bcb0455ced2.png" alt=""></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>至此全部缺失的文件链接就获取到了，接下来就是可以用各种下载工具或者wget、curl 命令批量下载了。</p>
+<p>犹豫我起初用的wget，所以这次换成了IDM。</p>
+<p><img src="https://pic.downk.cc/item/5e8359e4504f4bcb045633db.png" alt=""></p>
+<p>所有代码如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 从wget的输出文件提取出Time-out的连接</span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment">#</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 1 删除checksum的前5行 &gt; allchecksum.txt</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 2 提取allchecksum.txt中的文件名 &gt; allfilename.txt</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 3 提取文件夹下所有文件名 &gt; downloadfilename.txt</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 4 从allfilename.txt中剔除downloadfilename.txt &gt; lostfilename.txt</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 5 为missfilename.txt加上链接前缀</span></span><br><span class="line">echo "开始处理"</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> /1/</span></span><br><span class="line">cd ../MODIS_data/</span><br><span class="line">sed '1,5d' Input/MYD04_L2.2003/checksums_501429940 &gt; allchecksum.txt</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> /2/</span></span><br><span class="line">awk '&#123;print $3&#125;' allchecksum.txt &gt; allfilename.txt</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">/3/</span></span><br><span class="line">ls Input/MYD04_L2.2003/ -I checksum* &gt; downloadfilename.txt</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">/4/</span></span><br><span class="line">grep -v -f downloadfilename.txt allfilename.txt &gt; lostfilename.txt</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">/5/</span></span><br><span class="line">awk '&#123;</span><br><span class="line">    fatherlink="https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/";</span><br><span class="line">orderNum="501429940";</span><br><span class="line">print fatherlink orderNum "/" $0&#125;' lostfilename.txt &gt;lostfilelink.txt</span><br><span class="line">echo &amp;time</span><br><span class="line">echo "处理完毕"</span><br></pre></td></tr></table></figure>
+
+<p>我承认有作秀的嫌疑，毕竟用了这么多你们可能没听过的东西。当然这些简单的文本处理python C 都可以做，但是我觉得也只有Shell可以这么高效了。只有5条命令。真的高效。真的高效。啥也不说了，Linux大法好。</p>
+<p>当然这也跟平时的Linux水平有很大关系，起码你得知道有这个命令有这个功能。</p>
+<p>另外一个就是要学会分块处理。就像这个问题，你直接百度“筛选遗漏文件名”肯定结果不理想，大问题分步做，这样即使不知道上网搜索的效果也会很好。利用好互联网的碎片化效应，把问题也“碎片化”，各个击破。</p>
+<div id="footnotes"><hr><div id="footnotelist"><ol style="list-style: none; padding-left: 0; margin-left: 40px"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px; margin-left: -40px">1.</span><span style="display: inline-block; vertical-align: top; margin-left: 10px;">准确地说awk是一种编程语言，有自己的语法。这里只是最简单的一个应用。详细用法可以看这个<a href="https://man.linuxde.net/awk" target="_blank" rel="noopener">awk语法说明</a><a href="#fnref:1" rev="footnote"> ↩</a></span></li></ol></div></div>
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>遥一可
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.sanchor.xyz/2020/03/31/%E8%AE%B0%E4%B8%80%E6%AC%A1Shell%E5%91%BD%E4%BB%A4%E6%96%87%E6%9C%AC%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86/" title="记一次Shell命令文本文件处理">https://www.sanchor.xyz/2020/03/31/记一次Shell命令文本文件处理/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Shell/" rel="tag"># Shell</a>
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/27/%E6%9C%AA%E6%9D%A5%E4%B8%80%E6%AE%B5%E6%97%B6%E9%97%B4%E7%9A%84%E5%AD%A6%E4%B9%A0%E5%86%85%E5%AE%B9/" rel="prev" title="未来一段时间的学习内容">
+      <i class="fa fa-chevron-left"></i> 未来一段时间的学习内容
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/06/09/%E8%BF%99%E5%8F%AF%E8%83%BD%E6%98%AFWindows%E4%B8%8B%E5%BC%80%E5%8F%91%E7%9A%84%E6%9C%80%E4%BD%B3%E5%A7%BF%E5%8A%BF/" rel="next" title="这可能是Windows下开发的最佳姿势">
+      这可能是Windows下开发的最佳姿势 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#情景介绍"><span class="nav-number">1.</span> <span class="nav-text">情景介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#我的方法"><span class="nav-number">2.</span> <span class="nav-text">我的方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-得到所有待下载的文件名"><span class="nav-number">2.1.</span> <span class="nav-text">1. 得到所有待下载的文件名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-已下载文件的文件名"><span class="nav-number">2.2.</span> <span class="nav-text">2. 已下载文件的文件名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-丢失的文件名"><span class="nav-number">2.3.</span> <span class="nav-text">3. 丢失的文件名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-组合成下载链接"><span class="nav-number">2.4.</span> <span class="nav-text">4. 组合成下载链接</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="遥一可"
+      src="/images/cut_cat.jpg">
+  <p class="site-author-name" itemprop="name">遥一可</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xiaoke0o" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xiaoke0o" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lengfeng1453@163.com" title="E-Mail → mailto:lengfeng1453@163.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">豫 ICP 备 19005585 号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">遥一可</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">38k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:09</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'forest',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+  
+
+  
+
+</body>
+</html>
