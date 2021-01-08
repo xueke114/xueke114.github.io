@@ -182,7 +182,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-01-08 14:37:50 / 修改时间：14:55:07" itemprop="dateCreated datePublished" datetime="2021-01-08T14:37:50+08:00">2021-01-08</time>
+              <time title="创建时间：2021-01-08 14:37:50 / 修改时间：14:59:14" itemprop="dateCreated datePublished" datetime="2021-01-08T14:37:50+08:00">2021-01-08</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -200,7 +200,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>341</span>
+              <span>342</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -219,18 +219,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>安装并配置好Jupyter和<code>jupyter_contrib_nbextensions</code>后，发现没有Nbextensions选项卡的入口。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">conda安装命令</span><br><span class="line">conda install -c conda-forge jupyter_contrib_nbextensions jupyter_nbextensions_configurator</span><br></pre></td></tr></table></figure>
-
-<p>打开控制台，发现是因为mathjaxutils没有加载（mathjaxutils是负责渲染数学公示的）。</p>
-<p><img src="https://pic.downk.cc/item/5ff7fee13ffa7d37b3e70c80.png" alt=""></p>
-<p>于是搜索到了<a href="https://discourse.jupyter.org/t/the-static-notebook-js-mathjaxutils-js-is-missing/7303" target="_blank" rel="noopener">问题源头</a>，意思是开发者修改了mathjaxutils的位置，需要自己手动在render.js中修改一下mathjaxutils.js的路径。</p>
-<p><img src="https://pic.downk.cc/item/5ff7ffb53ffa7d37b3e7baf0.png" alt=""></p>
-<p>在Everything的帮助下，找到了render.js的位置，修改成如下路径即可。</p>
-<p><img src="https://pic.downk.cc/item/5ff8006d3ffa7d37b3e82328.png" alt=""></p>
-<p>选项卡出现了。</p>
-<p><img src="https://pic.downk.cc/item/5ff800e43ffa7d37b3e86dd6.png" alt=""></p>
-
+          <p>安装并配置好Jupyter和<code>jupyter_contrib_nbextensions</code>后，发现没有Nbextensions选项卡的入口。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/01/08/%E8%A7%A3%E5%86%B3%E4%BA%86%E5%AE%89%E8%A3%85Jupyter-extension%E5%90%8E%E7%95%8C%E9%9D%A2%E4%B8%8D%E6%98%BE%E7%A4%BANbextensions%E7%9A%84%E9%97%AE%E9%A2%98/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
